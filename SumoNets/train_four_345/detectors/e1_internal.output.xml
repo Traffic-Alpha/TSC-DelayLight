@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2023-04-07 11:29:50 by Eclipse SUMO libsumo Version 1.16.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/libsumoConfiguration.xsd">
+
+    <input>
+        <net-file value="/home/aoyu/traffic/Traffic_Delay_Light/./SumoNets/train_four_345/env/6phases.net.xml"/>
+        <route-files value="/home/aoyu/traffic/Traffic_Delay_Light/./SumoNets/train_four_345/routes/0.rou.xml"/>
+        <additional-files value="/home/aoyu/traffic/Traffic_Delay_Light/./SumoNets/train_four_345/env/../detectors/e1_internal.add.xml,/home/aoyu/traffic/Traffic_Delay_Light/./SumoNets/train_four_345/env/ ../detectors/e2.add.xml"/>
+    </input>
+
+    <processing>
+        <time-to-teleport value="-1"/>
+        <waiting-time-memory value="10000"/>
+        <max-depart-delay value="100000"/>
+    </processing>
+
+    <report>
+        <no-warnings value="true"/>
+        <no-step-log value="true"/>
+    </report>
+
+    <random_number>
+        <random value="true"/>
+    </random_number>
+
+</configuration>
+-->
+
+<detector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/det_e1_file.xsd">
+</detector>
