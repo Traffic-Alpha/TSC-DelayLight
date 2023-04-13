@@ -1,5 +1,5 @@
 '''
-@Author: WANG Maonan
+@Author: Pang Aoyu
 @Date: 2022-03-15 12:02:58
 @Description: 创建 Next or Not 环境
 整个环境创建的流程如下所示：
@@ -20,7 +20,7 @@ import os
 import gym
 from typing import List, Callable, Dict
 from stable_baselines3.common.monitor import Monitor
-from aiolos.AssembleEnvs.KeepChangePhaseEnv import KeepChangePhaseSUMOEnvironment
+from aiolos.AssembleEnvs.ChosePhaseEnv import ChoosePhaseSUMOEnvironment
 
 from aiolos.utils.get_abs_path import getAbsPath
 from aiolos.trafficLog.initLog import init_logging
@@ -80,7 +80,7 @@ def make_env(
         pathConvert = getAbsPath(__file__)
         init_logging(log_path=pathConvert('../Log/'), prefix=f'PID_{os.getpid()}', log_level=0)
 
-        env = KeepChangePhaseSUMOEnvironment(
+        env = ChoosePhaseSUMOEnvironment(
                             sumo_cfg=sumo_cfg,
                             begin_time=begin_time,
                             net_file=net_files[0],
