@@ -7,11 +7,11 @@
  # @LastEditTime: 2023-03-05 15:32:02
 ###
 
-FOLDER="/home/aoyu/traffic/Traffic_Delay_Light" 
+FOLDER="/home/aoyu/TSC-DelayLight" 
 
-for delay_time in 0 5 10 15 20 30 40 50 60 70 80 90 100 110 120
+for delay_time in 0 1 2 3 4 6 8 10 12 14 16 18 20 22 24
 do
-    for model_name in scnn ernn eattention ecnn inference
+    for model_name in scnn ernn eattention ecnn inference predict
     do    
         python ${FOLDER}/test.py --stack=6 --delay=$delay_time --model_name=$model_name --net_env=train_three_3  --net_name=3phases.net.xml
     
