@@ -50,8 +50,6 @@ def create_params(
             for _folder in ['train_four_345']
         }
     else: # 训练的时候多个路网同时进行训练
-        
-
         env_dict = {
             FOLDER_NAME: {
             'cfg': pathConvert(f'./SumoNets/{FOLDER_NAME}/env/{cfg_name}'),
@@ -107,22 +105,23 @@ def create_test_params(
     tls_id = SUMO_NET_CONFIG[FOLDER_NAME]['tls_id'] # 路口 id
     #cfg_name = SUMO_NET_CONFIG[FOLDER_NAME]['sumocfg'] # sumo config
     #net_name = SUMO_NET_CONFIG[FOLDER_NAME]['nets'][0] # network file
-    route_name = SUMO_NET_CONFIG[FOLDER_NAME]['routes'][4] # route file 用固定的第0个车流进行训练 1 2 3 4
+    route_name = SUMO_NET_CONFIG[FOLDER_NAME]['routes'] # route file 用固定的第0个车流进行训练 1 2 3 4
     start_time = SUMO_NET_CONFIG[FOLDER_NAME]['start_time'] # route 开始的时间
 
 
     # 转换为文件路径
     cfg_xml = pathConvert(f'./SumoNets/{FOLDER_NAME}/env/{cfg_name}')
     net_xml = [pathConvert(f'./SumoNets/{FOLDER_NAME}/env/{net_name}')]
-    route_xml = [pathConvert(f'./SumoNets/{FOLDER_NAME}/routes/{route_name}')]
+    #route_xml = [pathConvert(f'./SumoNets/{FOLDER_NAME}/routes/{route_name}')]
 
     route_params = dict() # 给每一个 route 生成一组参数
 
     for _net in [net_name]:
-        for _route in [route_name]:
+        for _route in SUMO_NET_CONFIG[FOLDER_NAME]['routes']:
             _net_name = _net.split('.')[0] # 得到 NET 的名称
             _route_name = _route.split('.')[0] # 得到车流
-            print('_net_name',_net_name,' _route_name',_route_name)
+            print('_net_name',_net_name,' _route_name',_route)
+            route_xml = [pathConvert(f'./SumoNets/{FOLDER_NAME}/routes/{_route}')]
             route_output_folder = os.path.join(output_folder, f'{_net_name}/{_route_name}') # 模型输出文件夹
             os.makedirs(route_output_folder, exist_ok=True) # 创建文件夹
             trip_info = os.path.join(route_output_folder, f'tripinfo.out.xml')

@@ -14,7 +14,7 @@ from aiolos.utils.get_abs_path import getAbsPath
 from aiolos.trafficLog.initLog import init_logging
 pathConvert = getAbsPath(__file__)
 
-from sumo_env import makeENV
+from env import makeENV
 from create_params import create_test_params
 
 def test_model(
@@ -24,16 +24,16 @@ def test_model(
     ):
     if model_name == 'None':
         model_name = ''
-    assert model_name in ['scnn', 'ernn','eattention','ecnn','inference'], f'Model name error, {model_name}'
+    assert model_name in ['scnn', 'ernn', 'eattention', 'ecnn', 'inference', 'predict', 'ernn_P', 'ernn_C'], f'Model name error, {model_name}'
     # args, 这里为了组合成模型的名字
     N_STACK = n_stack # 堆叠
     N_DELAY = n_delay # 时延
+    Model_DELAY=0
 
-
-    MODEL_PATH = pathConvert(f'./results/models/{model_name}/{net_env}_{net_name}_{N_STACK}_0/best_model.zip')
-    VEC_NORM = pathConvert(f'./results/models/{model_name}/{net_env}_{net_name}_{N_STACK}_0/best_vec_normalize.pkl')
-    LOG_PATH = pathConvert(f'./results/test/log_2/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/') # 存放仿真过程的数据
-    output_path = pathConvert(f'./results/test/output_2/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/')
+    MODEL_PATH = pathConvert(f'./results/models/{model_name}/{net_env}_{net_name}_{N_STACK}_{Model_DELAY}/best_model.zip')
+    VEC_NORM = pathConvert(f'./results/models/{model_name}/{net_env}_{net_name}_{N_STACK}_{Model_DELAY}/best_vec_normalize.pkl')
+    LOG_PATH = pathConvert(f'./results/test/log/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/') # 存放仿真过程的数据
+    output_path = pathConvert(f'./results/test/output/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/')
 
     eval_params = create_test_params(
 
@@ -69,12 +69,14 @@ def test_model(
 
         # 拷贝生成的 tls 文件
         _net, _route = _key.split('__')
+        
         shutil.copytree(
             src=pathConvert(f'./SumoNets/{net_env}/add/'),
-            dst=f'{output_path}/{_net}/{_route}/add/',
+            dst=f'{output_path}/add/',
             ignore=shutil.ignore_patterns('*.add.xml'),
             dirs_exist_ok=True,
         )
+        
 
 
 if __name__ == '__main__':
@@ -82,7 +84,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--stack', type=int, default=6)
-    parser.add_argument('--delay', type=int, default=1)
+    parser.add_argument('--delay', type=int, default=0)
     parser.add_argument('--model_name', type=str, default='scnn')
     parser.add_argument('--net_env', type=str, default='train_four_345')
     parser.add_argument('--net_name', type=str, default='4phases.net.xml')
@@ -91,7 +93,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     test_model(
-         net_env=args.net_env,
+        net_env=args.net_env,
         model_name=args.model_name, net_name=args.net_name,
         n_stack=args.stack, n_delay=args.delay,
         singleEnv=args.singleEnv, fineTune=args.fineTune
