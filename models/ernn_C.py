@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
-class ECNN(BaseFeaturesExtractor):
+class ERNN_C(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.Space, features_dim: int = 64):
         """利用 RNN 提取信息
         """
@@ -26,6 +26,14 @@ class ECNN(BaseFeaturesExtractor):
             nn.ReLU(),
         ) # 每一个 junction matrix 提取的特征
         view_out_size = self._get_conv_out(self.net_shape)
+        LSTM_size=self.net_shape[1]*self.net_shape[2]
+
+        self.extract_time_info = nn.LSTM(
+                input_size=LSTM_size, 
+                hidden_size=LSTM_size, 
+                num_layers=2,
+                batch_first=True
+            )
         
         self.fc = nn.Sequential(
             nn.Linear(view_out_size, 128),
@@ -35,17 +43,27 @@ class ECNN(BaseFeaturesExtractor):
             nn.Linear(64, features_dim)
         )
 
+
     def _get_conv_out(self, shape):
         o = self.view_conv(torch.zeros(1, 1, *shape[1:])) # 进入卷积 看一下输出的结果
         return int(shape[0]*np.prod(o.size()))
-
-
+    
+    
     def forward(self, observations):
         batch_size = observations.size()[0] # (BatchSize, N, 8, K)
+        N=observations.size()[1]
         # observations = torch.unsqueeze(observations,2) # (BatchSize, N, 1, 8, K)
-        observations = observations.view(-1, 1, 8, self.net_shape[-1]) # (BatchSize*N, 1, 8, K)
-        #print(observations.size())
-        conv_out = self.view_conv(observations).view(batch_size, self.net_shape[0], -1) # (BatchSize*N, 256) --> (BatchSize, N, 256)
-        conv_out=conv_out.view(batch_size,-1)#  (BatchSize, N*256)
-        #import pdb; pdb.set_trace()
+
+        observations = observations.view(batch_size, N, -1) # (BatchSize, N, 8*K)
+        
+        lstm_out, _ = self.extract_time_info(observations)
+        #print('lstm_out',lstm_out.size())
+        lstm_out = lstm_out.reshape(batch_size*N, 1, 8, self.net_shape[-1]) # (BatchSize*N, 1, 8, K)  
+        #RuntimeError: view size is not compatible with input tensor's size and stride (at least one dimension spans across two contiguous subspaces). Use .reshape(...) instead. 为什么用reshape可以 用view不可以
+        #print('lstm_out',lstm_out.size())
+
+        conv_out = self.view_conv(lstm_out).view(batch_size, self.net_shape[0], -1) # (BatchSize*N, 256) --> (BatchSize, N, 256)
+        
+        conv_out=conv_out.view(batch_size,-1)
+
         return self.fc(conv_out)

@@ -11,7 +11,7 @@ import torch
 import torch.nn as nn
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor
 
-class ECNN(BaseFeaturesExtractor):
+class ERNN_P(BaseFeaturesExtractor):
     def __init__(self, observation_space: gym.Space, features_dim: int = 64):
         """利用 RNN 提取信息
         """
@@ -26,7 +26,13 @@ class ECNN(BaseFeaturesExtractor):
             nn.ReLU(),
         ) # 每一个 junction matrix 提取的特征
         view_out_size = self._get_conv_out(self.net_shape)
-        
+
+        self.extract_time_info = nn.LSTM(
+                input_size=view_out_size, 
+                hidden_size=view_out_size, 
+                num_layers=2,
+                batch_first=True
+            )
         self.fc = nn.Sequential(
             nn.Linear(view_out_size, 128),
             nn.ReLU(),
@@ -35,17 +41,18 @@ class ECNN(BaseFeaturesExtractor):
             nn.Linear(64, features_dim)
         )
 
+
     def _get_conv_out(self, shape):
         o = self.view_conv(torch.zeros(1, 1, *shape[1:])) # 进入卷积 看一下输出的结果
-        return int(shape[0]*np.prod(o.size()))
-
-
+        return int(np.prod(o.size()))
+    
+    
     def forward(self, observations):
         batch_size = observations.size()[0] # (BatchSize, N, 8, K)
         # observations = torch.unsqueeze(observations,2) # (BatchSize, N, 1, 8, K)
         observations = observations.view(-1, 1, 8, self.net_shape[-1]) # (BatchSize*N, 1, 8, K)
-        #print(observations.size())
         conv_out = self.view_conv(observations).view(batch_size, self.net_shape[0], -1) # (BatchSize*N, 256) --> (BatchSize, N, 256)
-        conv_out=conv_out.view(batch_size,-1)#  (BatchSize, N*256)
-        #import pdb; pdb.set_trace()
+        lstm_out, _ = self.extract_time_info(conv_out)
+        conv_out=lstm_out[:,-1].reshape(batch_size,-1) # RNN 结果 Ecoding
+
         return self.fc(conv_out)
