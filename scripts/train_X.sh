@@ -10,15 +10,16 @@ FOLDER="/home/aoyu/TSC-DelayLight"
 
 model=ernn_C
 
-python ${FOLDER}/train.py --stack=6 --delay=0 --model_name=$model  --net_env=train_three_3 --net_name=3phases.net.xml 
+python ${FOLDER}/train.py --stack=6 --delay=0 --model_name=$model  --net_env=train_three_3 --net_name=3phases.net.xml &
 
-echo '完成 train_three_3.'
+echo '完成 train_three_3.' &
 
-python ${FOLDER}/train.py --stack=6 --delay=0 --model_name=$model  --net_env=train_four_345 --net_name=4phases.net.xml
+python ${FOLDER}/train.py --stack=6 --delay=0 --model_name=$model  --net_env=train_four_345 --net_name=4phases.net.xml &
 
-echo '完成 train_four_345 4phases.net.xml.'
+echo '完成 train_four_345 4phases.net.xml.' &
 
-python ${FOLDER}/train.py --stack=6 --delay=0 --model_name=$model  --net_env=train_four_345 --net_name=6phases.net.xml
-echo '完成 train_four_345 6phases.net.xml.'
+python ${FOLDER}/train.py --stack=6 --delay=0 --model_name=$model  --net_env=train_four_345 --net_name=6phases.net.xml &
+
+echo '完成 train_four_345 6phases.net.xml.' 
 
 echo '完成' $model 

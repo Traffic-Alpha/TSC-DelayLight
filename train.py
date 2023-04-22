@@ -16,7 +16,7 @@ from aiolos.trafficLog.initLog import init_logging
 pathConvert = getAbsPath(__file__)
 
 from env import makeENV
-from models import scnn, ernn, eattention, ecnn, inference, ernn_P, ernn_C
+from models import scnn, ernn, eattention, ecnn, inference, ernn_P, ernn_C, inference_scnn
 from create_params import create_params
 from utils.lr_schedule import linear_schedule
 from utils.env_normalize import VecNormalizeCallback, VecBestNormalizeCallback
@@ -24,7 +24,7 @@ from utils.env_normalize import VecNormalizeCallback, VecBestNormalizeCallback
 def experiment(
         net_name,net_env,n_stack, n_delay, model_name, num_cpus
     ):
-    assert model_name in ['scnn', 'ernn','eattention','ecnn','inference', 'ernn_P', 'ernn_C'], f'Model name error, {model_name}'   #增加模型
+    assert model_name in ['scnn', 'ernn','eattention','ecnn','inference', 'ernn_P', 'ernn_C','inference_scnn'], f'Model name error, {model_name}'   #增加模型
     # args
     N_STACK = n_stack # 堆叠
     N_DELAY = n_delay # 时延
@@ -91,6 +91,7 @@ def experiment(
         'inference':inference.Inference,
         'ernn_P':ernn_P.ERNN_P,
         'ernn_C':ernn_C.ERNN_C,
+        'inference_scnn':inference_scnn.Inference_SCNN,
     }
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print("device",device)

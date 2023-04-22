@@ -9,20 +9,21 @@
 
 FOLDER="/home/aoyu/TSC-DelayLight" 
 
-for model_name in scnn ernn eattention ecnn inference predict
+for model_name in scnn ernn eattention ecnn inference predict ernn_P 
     do    
-        python ${FOLDER}/Read_csv.py --stack=6  --model_name=$model_name --net_env=train_three_3  --net_name=3phases.net.xml
+        python ${FOLDER}/Read_csv.py --stack=6  --model_name=$model_name --net_env=train_three_3  --net_name=3phases.net.xml &
     
         echo 'Finish' $model_name  $delay_time  'train_three_3 3phases.net.xml' 
 
-        python ${FOLDER}/Read_csv.py --stack=6 --model_name=$model_name --net_env=train_four_345  --net_name=4phases.net.xml
+        python ${FOLDER}/Read_csv.py --stack=6 --model_name=$model_name --net_env=train_four_345  --net_name=4phases.net.xml &
     
         echo 'Finish' $model_name  $delay_time  'train_four_345 4phases.net.xml' 
 
-        python ${FOLDER}/Read_csv.py --stack=6  --model_name=$model_name --net_env=train_four_345  --net_name=6phases.net.xml
+        python ${FOLDER}/Read_csv.py --stack=6  --model_name=$model_name --net_env=train_four_345  --net_name=6phases.net.xml &
         
         echo 'Finish' $model_name  $delay_time  'train_four_345 6phases.net.xml' 
-
+       
+        wait
     done
 
 

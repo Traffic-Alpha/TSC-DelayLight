@@ -106,7 +106,7 @@ def experiment(
             )
     #import pdb; pdb.set_trace()
 
-    model.learn(total_timesteps=1e6, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
+    model.learn(total_timesteps=2e6, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
 
     # #########
     # save env
