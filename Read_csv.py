@@ -33,35 +33,44 @@ def  readData(
     N_STACK = n_stack # 堆叠
     N_DELAY = n_delay # 时延
     FOLDER_NAME = net_env
-
+    _net_name = net_name.split('.')[0] # 得到 NET 的名称
     #将节点取值 写入文档，但是有些繁琐
-    root_PATH=pathConvert(f'./results/testData-mean_1/{model_name}_{n_stack}_test/')
-    Data_PATH=pathConvert(f'./results/testData-mean_1/{model_name}_{n_stack}_test/{net_env}__{net_name}.csv')
+    root_PATH=pathConvert(f'./results/testData-mean_2/{model_name}_{n_stack}_test/')
+    Data_PATH=pathConvert(f'./results/testData-mean_2/{model_name}_{n_stack}_test/{net_env}_{_net_name}.csv')
     if not os.path.exists(root_PATH):
         print('Data is not excit.')
-    W=get_WT(Data_PATH)
+    W=[]
+    for i in range(0,5):
+        W_temp=get_WT(Data_PATH,i)
+        W_temp=np.array(W_temp)
+        W_temp=W_temp.T
+        W_temp=W_temp.reshape((-1,15))
+        W_median_temp=np.median(W_temp,axis=0)
+        W.append(W_median_temp)
     W_all=np.array(W)
     #print('all',W_all)
     #print('all',W_all.shape)
-    W_all=W_all.T
-    W_all=W_all.reshape((-1,15))
+    #W_all=W_all.T
+    #W_all=W_all.reshape((-1,15))
     #print('all',W_all)
     #print('all',W_all.shape)
-    W_median=np.median(W_all,axis=0)
+    #W_median=np.median(W_all,axis=0)
     W_mean=W_all.sum(axis=0)/len(W_all) #按照列求和，归为第二维度上，然后求平均
-    #print('mean',W_median)
+    #print('mean',W_mean)
     _net_name = net_name.split('.')[0] # 得到 NET 的名称
     SAVE_PATH_root=pathConvert(f'./results/testData_median/{model_name}_{n_stack}_test/')
     if not os.path.exists(SAVE_PATH_root):
         os.makedirs(SAVE_PATH_root)
+    W_all=W_all.T
+    W_all=np.sort(W_all,axis=1)
+    #print(W_all)
+    np.savetxt(f'{SAVE_PATH_root}/{net_env}_{_net_name}.csv', W_mean, delimiter=' ', fmt='%.02f')
 
-    np.savetxt(f'{SAVE_PATH_root}/{net_env}_{_net_name}.csv', W_median, delimiter=None)
-
-def get_WT(data_path='output_path'):
+def get_WT(data_path='output_path',i=0):
     #获取节点取值
     dom = pd.read_csv(data_path,header=None)
     #print(dom)
-    WT=dom
+    WT=dom[i]
     WT=WT[WT.index%2==0] #偶数行是全部数据，奇数行是已经求好的平均值
     #print(WT)
     return WT
@@ -76,7 +85,7 @@ if __name__ == '__main__':
 
     parser.add_argument('--stack', type=int, default=6)
     parser.add_argument('--delay', type=int, default=0)
-    parser.add_argument('--model_name', type=str, default='scnn')
+    parser.add_argument('--model_name', type=str, default='ernn_P')
     parser.add_argument('--net_env', type=str, default='train_four_345')
     parser.add_argument('--net_name', type=str, default='4phases.net.xml')
     parser.add_argument('--singleEnv', default=False, action='store_true')

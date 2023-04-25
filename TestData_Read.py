@@ -41,7 +41,7 @@ def  readData(
         WT=float(WT)
         W.append(WT)
     #将节点取值 写入文档，但是有些繁琐
-    root_PATH=pathConvert(f'./results/testData-mean_2/{model_name}_{n_stack}_test/')
+    root_PATH=pathConvert(f'./results/testData_mean_3/{model_name}_{n_stack}_test/')
     if not os.path.exists(root_PATH):
         os.makedirs(root_PATH)
     W_all=np.array(W)
