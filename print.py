@@ -22,10 +22,11 @@ from create_params import create_test_params
 from SumoNets.NET_CONFIG import SUMO_NET_CONFIG
 
 model_names=['scnn', 'ernn', 'eattention', 'ecnn', 'inference', 'predict','ernn_P', 'ernn_C', 'inference_scnn'] #需要读取的模型的名字
+#model_names=[ 'ernn_C'] 
 net_name=['4phases.net.xml','6phases.net.xml','3phases.net.xml']
 net_env=['train_four_345','train_four_345','train_three_3']
 n_stack = 6 # 堆叠
-N_DELAY = [0, 1, 2, 3, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24] # 时延
+N_DELAY = [0, 1, 2, 3, 4, 8, 12, 16,  20,  24] # 时延
 FOLDER_NAME = []
 _net_name = net_name[0].split('.')[0]
 _net_env=net_env[0]
@@ -48,11 +49,14 @@ for model_name in model_names :
  #temp_data=temp_data.sum(axis=0)/len(temp_data)
  total_data.append(temp_data)
 total_data=np.array(total_data)
-total_data=total_data.reshape((-1,15))
+print(total_data.shape)
+total_data=total_data.reshape((-1,10))
+df = pd.DataFrame(total_data.T,columns=Label,dtype=float)
+print(df)
 print(total_data.shape)
 plt.plot(total_data.T, label=Label)
 PNG_DATA=pathConvert(f'./results/png/')
 if not os.path.exists(PNG_DATA):
     os.makedirs(PNG_DATA)
-plt.legend(loc='upper right',frameon=True,edgecolor='black',facecolor='white',framealpha=1) 
-plt.savefig(f'{PNG_DATA}/total_data.png')
+plt.legend(loc='upper left',frameon=True,edgecolor='black',facecolor='white',framealpha=1) 
+plt.savefig(f'{PNG_DATA}/{_net_name}_total_data.png')
