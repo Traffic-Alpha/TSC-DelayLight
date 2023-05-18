@@ -150,7 +150,7 @@ def create_test_params(
             params = {
                 'tls_id':tls_id,
                 'begin_time':start_time,
-                'num_seconds':3600,
+                'num_seconds':4000,
                 'sumo_cfg':cfg_xml,
                 'net_files':net_xml,
                 'route_files':route_xml,

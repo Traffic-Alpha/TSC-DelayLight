@@ -40,14 +40,15 @@ class Predict(BaseFeaturesExtractor):
             nn.Linear(64, features_dim)
         )
 
-        self.Flow_Predict = lstm_reg(net_shape[0],10)
+        self.Flow_Predict = lstm_reg(net_shape[0],10) #10是指隐藏层的数量
 
 
         self.Flow_Predict.load_state_dict(torch.load(PREDICT_MODEL_PATH) )
 
 
      # state [flow, mean_occupancy, max_occupancy, is_s, num_lane, mingreen, is_now_phase, is_next_phase]
-    def infe(self,observaions):
+    '''
+    def infe(self,observaions): #更改一下，全部预测，不要做改变，is_s, num_lane 后用新的赋值 ，因为经过归一化，所以不做改变，尝试一下
         # 出现问题 这么写如果有GPU 就一定在GPU上跑
      
         net_shape = observaions.shape
@@ -67,6 +68,28 @@ class Predict(BaseFeaturesExtractor):
         obs_inf[:,:,6]=flow_predict[:,:,-1] # [is_now_phase]
 
         return obs_inf
+    '''
+    def infe(self,observaions):
+        net_shape = observaions.shape
+        obs_inf=observaions[:,-1,:,:].clone() #初始化空间
+        flow_data=observaions[:,:,:,:].clone() #取出需要的数据 #取出全部的数据
+        flow_data=flow_data.reshape((net_shape[0],-1,net_shape[1]))
+        var_data = Variable(flow_data)
+        for i in range(0,1):
+            #print('var_data',var_data.shape)
+            temp_data=var_data.clone()
+            flow_predict=self.Flow_Predict(var_data)
+            #print('flow_predict',flow_predict.size())
+            var_data[:,:,0:net_shape[1]-1]=temp_data[:,:,1:net_shape[1]].clone()
+            #print('var_data',var_data.size())
+            #print('flow_predict',flow_predict.size())
+            #import pdb; pdb.set_trace()
+            var_data[:,:,net_shape[1]-1:net_shape[1]]=flow_predict[:,:,:].clone()
+            #print('var_data',var_data.size())
+
+        flow_predict=flow_predict.reshape((net_shape[0],net_shape[2],-1))
+        obs_inf=flow_predict
+        return obs_inf
 
     def _get_conv_out(self, shape):
         o = self.view_conv(torch.zeros(1, *shape))
@@ -82,11 +105,12 @@ class Predict(BaseFeaturesExtractor):
 
 
 class lstm_reg(nn.Module):
-    def __init__(self,input_size=24,hidden_size=4, output_size=1,num_layers=2):
+    def __init__(self,input_size=64,hidden_size=4, output_size=1,num_layers=2):
         super(lstm_reg,self).__init__()
             #super() 函数是用于调用父类(超类)的一个方法，直接用类名调用父类
         self.rnn = nn.LSTM(input_size,hidden_size,num_layers) #LSTM 网络
         self.reg = nn.Linear(hidden_size,output_size) #Linear 函数继承于nn.Module
+
     def forward(self,x):   #定义model类的forward函数
         x, _ = self.rnn(x)
         s,b,h = x.shape   #矩阵从外到里的维数

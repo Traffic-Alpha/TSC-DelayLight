@@ -8,8 +8,8 @@
 ###
 
 FOLDER="/home/aoyu/TSC-DelayLight" 
-
-for model_name in scnn ernn eattention ecnn inference predict ernn_P 
+ 
+for model_name in scnn ernn eattention ecnn inference predict ernn_P ernn_C inference_scnn
     do    
         python ${FOLDER}/Read_csv.py --stack=6  --model_name=$model_name --net_env=train_three_3  --net_name=3phases.net.xml &
     

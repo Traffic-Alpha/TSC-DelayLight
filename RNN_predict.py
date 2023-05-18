@@ -1,6 +1,3 @@
-
-
-
 import numpy as np 
 import pandas as pd 
 import csv
@@ -19,11 +16,12 @@ pathConvert = getAbsPath(__file__)
   
   #定义模型 输入维度input_size ，隐藏层维度hidden_size可任意指定，这里为4
 class lstm_reg(nn.Module):
-    def __init__(self,input_size=24,hidden_size=4, output_size=1,num_layers=2):
+    def __init__(self,input_size=64,hidden_size=10, output_size=1,num_layers=2):
         super(lstm_reg,self).__init__()
             #super() 函数是用于调用父类(超类)的一个方法，直接用类名调用父类
         self.rnn = nn.LSTM(input_size,hidden_size,num_layers) #LSTM 网络
         self.reg = nn.Linear(hidden_size,output_size) #Linear 函数继承于nn.Module
+   
     def forward(self,x):   #定义model类的forward函数
         x, _ = self.rnn(x)
         s,b,h = x.shape   #矩阵从外到里的维数
@@ -46,9 +44,11 @@ def predict_model(
     NET_PATH=pathConvert(f'./FlowData/{net_env}_{net_name}_{N_STACK}_{N_DELAY}.pkl')
 
     data_csv = pd.read_csv(FLOWDATA_PATH,header=None)
+    Long=data_csv.shape[0]
     data=np.array(data_csv)
+    data=data[0:Long]
     shape=data.shape
-    Line=int(shape[1]/8)
+    Line=int(shape[1]/8) # /8 是因为一行有八个特征
     #数据预处理
 
     dataset = data.astype('float32')   #astype(type):实现变量类型转换  
@@ -82,16 +82,17 @@ def predict_model(
     #Adam 算法:params (iterable)：可用于迭代优化的参数或者定义参数组的 dicts   lr:学习率
     
     train_loader = DataLoader(dataset=Train_Data,
-                    batch_size=10,
+                    batch_size=50,
                     shuffle=False)
     test_loader = DataLoader(dataset=Train_Data,
-                    batch_size=10,
+                    batch_size=50,
                     shuffle=False)
     #构建测试集
-
+    print('train_loader',train_loader)
+    print('test_loader',test_loader)
     min_Loss=float('inf')
 
-    for epoch in range(100):
+    for epoch in range(200):
 
         
         for batch, x in enumerate(train_loader):
@@ -146,7 +147,7 @@ def create_dataset(dataset,look_back=6):#look_back 以前的时间步数用作�
 if __name__ == '__main__':
     
     parser = argparse.ArgumentParser()
-    parser.add_argument('--stack', type=int, default=6)
+    parser.add_argument('--stack', type=int, default=8)
     parser.add_argument('--delay', type=int, default=0)
     parser.add_argument('--net_env', type=str, default='train_four_345')
     parser.add_argument('--net_name', type=str, default='4phases.net.xml')

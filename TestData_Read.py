@@ -36,32 +36,42 @@ def  readData(
         route_name = SUMO_NET_CONFIG[FOLDER_NAME]['routes'][i] #选取绘制的车流数据
         _net_name = net_name.split('.')[0] # 得到 NET 的名称
         _route_name = route_name.split('.')[0] # 得到车流
-        output_path = pathConvert(f'./results/test/output/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/{_net_name}/{_route_name}/')
+        output_path = pathConvert(f'./results/test_temp/output/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/{_net_name}/{_route_name}/')
         WT=get_WT(output_path)
         WT=float(WT)
         W.append(WT)
     #将节点取值 写入文档，但是有些繁琐
-    root_PATH=pathConvert(f'./results/testData_mean_3/{model_name}_{n_stack}_test/')
+    root_PATH=pathConvert(f'./results/testData_temp/{model_name}_{n_stack}_test/')
     if not os.path.exists(root_PATH):
         os.makedirs(root_PATH)
     W_all=np.array(W)
     W_mean=W_all.sum()/len(W_all)
+    w_min=W_all.min()
+    w_max=W_all.max()
     W=[]
-    W.append(W_mean)
+    W.append(w_min)
+    W.append(w_max)
     _net_name=net_name.split('.')[0]
-    WT_PATH=pathConvert(f'{root_PATH}/{net_env}_{_net_name}.csv')
+    WT_PATH=pathConvert(f'{root_PATH}/{net_env}_{_net_name}_4000.csv')
     f=open(WT_PATH, 'a+')
     writer = csv.writer(f)
     writer.writerow(W_all)# 输出全部的数据
     writer.writerow(W)# 输出平均值
     f.close()
+
 def get_WT(output_path='output_path'):
     #获取节点取值
     dom = xml.dom.minidom.parse(output_path+'/statistic.out.xml')
     root = dom.documentElement
+    vehicles=root.getElementsByTagName('vehicles')
+    waiting=vehicles[0].getAttribute("waiting")
     VTS=root.getElementsByTagName('vehicleTripStatistics')#获取节点
+    
     WT=VTS[0].getAttribute("waitingTime")#h获取节点值
+    if(int(waiting)>100):
+        WT=-1
     return WT
+
 
 
    

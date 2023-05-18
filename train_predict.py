@@ -53,10 +53,10 @@ def experiment(
     )
     # The environment for training
     env = SubprocVecEnv([makeENV.make_env(env_index=f'{N_STACK}_{N_DELAY}_{i}', **train_params) for i in range(NUM_CPUS)])
-    env = VecNormalize(env, norm_obs=True, norm_reward=True) # 进行标准化
+    env = VecNormalize(env, norm_obs=False, norm_reward=True) # predict 先不进行标准化进行标准化
     # The environment for evaluating
     eval_env = SubprocVecEnv([makeENV.make_env(env_index=f'evaluate_{N_STACK}_{N_DELAY}', **eval_params) for i in range(1)])
-    eval_env = VecNormalize(eval_env, norm_obs=True, norm_reward=True) # 进行标准化
+    eval_env = VecNormalize(eval_env, norm_obs=False, norm_reward=True) # predict 先不进行标准化  reward 进行标准化
     eval_env.training = False # 测试的时候不要更新
     eval_env.norm_reward = False
 
@@ -106,7 +106,7 @@ def experiment(
             )
     #import pdb; pdb.set_trace()
 
-    model.learn(total_timesteps=2e6, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
+    model.learn(total_timesteps=3e6, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
 
     # #########
     # save env

@@ -31,6 +31,7 @@ def experiment(
     NUM_CPUS = num_cpus
     EVAL_FREQ = 2000 # 一把交互 700 次
     SAVE_FREQ = EVAL_FREQ*2 # 保存的频率
+    FLOWDATA_PATH_root=pathConvert(f'./FlowData/')
     FLOWDATA_PATH=pathConvert(f'./FlowData/{net_env}_{net_name}_{N_STACK}_{N_DELAY}.csv')#存储Flow数据
     MODEL_PATH = pathConvert(f'./results/models/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/')
     LOG_PATH = pathConvert(f'./results/log/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/') # 存放仿真过程的数据
@@ -41,8 +42,8 @@ def experiment(
         os.makedirs(TENSORBOARD_LOG_DIR)
     if not os.path.exists(LOG_PATH):
         os.makedirs(LOG_PATH)
-    if not os.path.exists(FLOWDATA_PATH):
-        os.makedirs(FLOWDATA_PATH)
+    if not os.path.exists(FLOWDATA_PATH_root):
+        os.makedirs(FLOWDATA_PATH_root)
 
     train_params = create_params(
         is_eval=False, 
@@ -54,10 +55,10 @@ def experiment(
     )
     # The environment for training
     env = SubprocVecEnv([makeENV.make_env(env_index=f'{N_STACK}_{N_DELAY}_{i}', **train_params) for i in range(NUM_CPUS)])
-    env = VecNormalize(env, norm_obs=True, norm_reward=True) # 进行标准化
+    env = VecNormalize(env, norm_obs=False, norm_reward=False) # 不进行标准化，保留原始特征
     # The environment for evaluating
     eval_env = SubprocVecEnv([makeENV.make_env(env_index=f'evaluate_{N_STACK}_{N_DELAY}', **eval_params) for i in range(1)])
-    eval_env = VecNormalize(eval_env, norm_obs=True, norm_reward=True) # 进行标准化
+    eval_env = VecNormalize(eval_env, norm_obs=False, norm_reward=False) # 是否进行标准化，此处选择不进行标准化，保留原始特征
     eval_env.training = False # 测试的时候不要更新
     eval_env.norm_reward = False
 
@@ -94,7 +95,7 @@ def experiment(
         'inference':inference.Inference,
         'flowdata':flowdata.FlowData,
     }
-    device = torch.device("cpu")
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     policy_kwargs = dict(
         features_extractor_class=feature_extract[model_name],
         features_extractor_kwargs=dict(features_dim=32, FLOWDATA_PATH=FLOWDATA_PATH)# features_dim 提取的特征维数

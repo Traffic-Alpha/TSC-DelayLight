@@ -10,7 +10,7 @@ FOLDER="/home/aoyu/TSC-DelayLight"
 STACK=6
 for i in 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 
 do
-    for delay_time in 0 1 2 3 4 6 8 10 12 14 16 18 20 22 24
+    for delay_time in 0 1 2 3 4  8  12  16  20  24
     do
     for model_name in scnn ernn eattention ecnn inference predict ernn_P ernn_C  inference_scnn
     do    
@@ -31,7 +31,7 @@ do
 
     echo 'Finish' $i 'test' 
 
-    for delay_time in 0 1 2 3 4 6 8 10 12 14 16 18 20 22 24
+    for delay_time in 0 1 2 3 4  8  12  16  20  24
     do
     for model_name in scnn ernn eattention ecnn inference predict ernn_P ernn_C  inference_scnn
     do    

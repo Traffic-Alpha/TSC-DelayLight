@@ -30,10 +30,10 @@ def test_model(
     N_DELAY = n_delay # 时延
     Model_DELAY=0
 
-    MODEL_PATH = pathConvert(f'./results/models/{model_name}/{net_env}_{net_name}_{N_STACK}_{Model_DELAY}/best_model.zip')
-    VEC_NORM = pathConvert(f'./results/models/{model_name}/{net_env}_{net_name}_{N_STACK}_{Model_DELAY}/best_vec_normalize.pkl')
+    MODEL_PATH = pathConvert(f'./results/models_test/{model_name}/{net_env}_{net_name}_{N_STACK}_{Model_DELAY}/best_model.zip')
+    VEC_NORM = pathConvert(f'./results/models_test/{model_name}/{net_env}_{net_name}_{N_STACK}_{Model_DELAY}/best_vec_normalize.pkl')
     LOG_PATH = pathConvert(f'./results/test/log/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/') # 存放仿真过程的数据
-    output_path = pathConvert(f'./results/test/output/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/')
+    output_path = pathConvert(f'./results/test_temp/output/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/')
 
     eval_params = create_test_params(
 

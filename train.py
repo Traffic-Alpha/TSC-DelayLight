@@ -31,9 +31,9 @@ def experiment(
     NUM_CPUS = num_cpus
     EVAL_FREQ = 2000 # 一把交互 700 次
     SAVE_FREQ = EVAL_FREQ*2 # 保存的频率
-    MODEL_PATH = pathConvert(f'./results/models/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/')
+    MODEL_PATH = pathConvert(f'./results/models_test/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/')
     LOG_PATH = pathConvert(f'./results/log/{model_name}/{net_env}_{net_name}_{N_STACK}_{N_DELAY}/') # 存放仿真过程的数据
-    TENSORBOARD_LOG_DIR = pathConvert(f'./results/tensorboard_logs/{model_name}_{net_env}_{net_name}/')
+    TENSORBOARD_LOG_DIR = pathConvert(f'./results/tensorboard_temp_logs/{model_name}_{net_env}_{net_name}/')
     if not os.path.exists(MODEL_PATH):
         os.makedirs(MODEL_PATH)
     if not os.path.exists(TENSORBOARD_LOG_DIR):
@@ -51,10 +51,10 @@ def experiment(
     )
     # The environment for training
     env = SubprocVecEnv([makeENV.make_env(env_index=f'{N_STACK}_{N_DELAY}_{i}', **train_params) for i in range(NUM_CPUS)])
-    env = VecNormalize(env, norm_obs=True, norm_reward=True) # 进行标准化
+    env = VecNormalize(env, norm_obs=False, norm_reward=True) # 进行标准化 #先不标准版测试一下
     # The environment for evaluating
     eval_env = SubprocVecEnv([makeENV.make_env(env_index=f'evaluate_{N_STACK}_{N_DELAY}', **eval_params) for i in range(1)])
-    eval_env = VecNormalize(eval_env, norm_obs=True, norm_reward=True) # 进行标准化
+    eval_env = VecNormalize(eval_env, norm_obs=False, norm_reward=True) # 进行标准化 #先不做标准化测试一下
     eval_env.training = False # 测试的时候不要更新
     eval_env.norm_reward = False
 
@@ -104,7 +104,7 @@ def experiment(
                 policy_kwargs=policy_kwargs, learning_rate=linear_schedule(3e-4), 
                 tensorboard_log=TENSORBOARD_LOG_DIR, device=device
             )
-    model.learn(total_timesteps=3e6, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
+    model.learn(total_timesteps=3e7, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
 
     # #########
     # save env
@@ -115,12 +115,12 @@ def experiment(
 if __name__ == '__main__':
     init_logging(log_path=pathConvert('./log'), log_level=0)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--stack', type=int, default=4)
+    parser.add_argument('--stack', type=int, default=6)
     parser.add_argument('--delay', type=int, default=0)
     parser.add_argument('--cpus', type=int, default=10) # 同时开启的仿真数量
     parser.add_argument('--net_env', type=str, default='train_four_345')
     parser.add_argument('--net_name', type=str, default='4phases.net.xml')
-    parser.add_argument('--model_name', type=str, default='scnn')
+    parser.add_argument('--model_name', type=str, default='ernn_C')
     args = parser.parse_args()
 
     experiment(
