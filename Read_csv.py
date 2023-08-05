@@ -35,8 +35,8 @@ def  readData(
     FOLDER_NAME = net_env
     _net_name = net_name.split('.')[0] # 得到 NET 的名称
     #将节点取值 写入文档，但是有些繁琐
-    root_PATH=pathConvert(f'./results/testData_temp/{model_name}_{n_stack}_test/')
-    Data_PATH=pathConvert(f'./results/testData_temp/{model_name}_{n_stack}_test/{net_env}_{_net_name}_4000.csv')
+    root_PATH=pathConvert(f'./results/testData_mean_2/{model_name}_{n_stack}_test/')
+    Data_PATH=pathConvert(f'./results/testData_mean_2/{model_name}_{n_stack}_test/{net_env}_{_net_name}_4000.csv')
     if not os.path.exists(root_PATH):
         print('Data is not excit.')
     W=[]

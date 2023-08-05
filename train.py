@@ -16,7 +16,7 @@ from aiolos.trafficLog.initLog import init_logging
 pathConvert = getAbsPath(__file__)
 
 from env import makeENV
-from models import scnn, ernn, eattention, ecnn, inference, ernn_P, ernn_C, inference_scnn
+from models import scnn, ernn, eattention, ecnn, inference, ernn_P, ernn_C, inference_scnn, cnn_Pro
 from create_params import create_params
 from utils.lr_schedule import linear_schedule
 from utils.env_normalize import VecNormalizeCallback, VecBestNormalizeCallback
@@ -24,7 +24,7 @@ from utils.env_normalize import VecNormalizeCallback, VecBestNormalizeCallback
 def experiment(
         net_name,net_env,n_stack, n_delay, model_name, num_cpus
     ):
-    assert model_name in ['scnn', 'ernn','eattention','ecnn','inference', 'ernn_P', 'ernn_C','inference_scnn'], f'Model name error, {model_name}'   #增加模型
+    assert model_name in ['scnn', 'ernn','eattention','ecnn','inference', 'ernn_P', 'ernn_C','inference_scnn','cnn_Pro'], f'Model name error, {model_name}'   #增加模型
     # args
     N_STACK = n_stack # 堆叠
     N_DELAY = n_delay # 时延
@@ -92,6 +92,7 @@ def experiment(
         'ernn_P':ernn_P.ERNN_P,
         'ernn_C':ernn_C.ERNN_C,
         'inference_scnn':inference_scnn.Inference_SCNN,
+        'cnn_Pro':cnn_Pro.CNN_Pro,
     }
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print("device",device)
@@ -104,6 +105,7 @@ def experiment(
                 policy_kwargs=policy_kwargs, learning_rate=linear_schedule(3e-4), 
                 tensorboard_log=TENSORBOARD_LOG_DIR, device=device
             )
+    model.learn(total_timesteps=10e6, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
     model.learn(total_timesteps=3e7, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
 
     # #########
@@ -115,6 +117,7 @@ def experiment(
 if __name__ == '__main__':
     init_logging(log_path=pathConvert('./log'), log_level=0)
     parser = argparse.ArgumentParser()
+    parser.add_argument('--stack', type=int, default=1)
     parser.add_argument('--stack', type=int, default=6)
     parser.add_argument('--delay', type=int, default=0)
     parser.add_argument('--cpus', type=int, default=10) # 同时开启的仿真数量
