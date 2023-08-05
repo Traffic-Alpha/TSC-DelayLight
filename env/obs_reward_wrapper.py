@@ -105,6 +105,7 @@ class obs_reward_wrapper(gym.Wrapper):
     def step(self, action):
         """将 step 的结果提取, 从 dict 提取为 list
         """
+        #print('self.net_masks',self.net_masks) #输出相位结构
         action = {self.tls_id: action}
         observations, rewards, dones, info = self.env.step(action)
 
@@ -115,7 +116,8 @@ class obs_reward_wrapper(gym.Wrapper):
         # 处理 reward, 排队长度的「均值」和「方差」
         single_agent_reward = rewards[self.tls_id] # 单个 agent 的 reward
         process_reward = self._process_reward(single_agent_reward)
-        return observation, process_reward, dones['__all__'], info
+
+        return observation, process_reward, dones['__all__'], info# 是否 return 到test环境里
 
 
     def _process_reward(self, raw_reward:Dict[str, List[float]]):

@@ -46,30 +46,32 @@ def test_model(
     for _key, eval_param in eval_params.items():
         # The environment for evaluating
         eval_env = SubprocVecEnv([makeENV.make_env(env_index=f'test_{N_STACK}_{N_DELAY}', **eval_param) for i in range(1)])#干什么用
-        eval_env = VecNormalize.load(load_path=VEC_NORM, venv=eval_env) # 进行标准化
+        eval_env = VecNormalize.load(load_path=VEC_NORM, venv=eval_env) # 不进行标准化
         eval_env.training = False # 测试的时候不要更新
         eval_env.norm_reward = False
-
+       
+        #print('trip_info', eval_param['trip_info'])
         # ###########
         # start train
         # ###########
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model = PPO.load(MODEL_PATH, env=eval_env, device=device)
-
+        action_space=eval_env.action_space.n    #获取action_space大小
+        phase_list=get_phase(action_space)
+        #import pdb; pdb.set_trace()
         # #########
         # 开始测试
         # #########
         obs = eval_env.reset()
         done = False # 默认是 False
-        phase_time=[0,0,0,0]
+        phase_time=np.ones(int(action_space))
         while not done:
             action, _state = model.predict(obs, deterministic=True)
             #print('action_test',action, obs)
-            if(SAFE_BLOCk==True):
-                action,phase_time=safe_judge(action,obs,phase_time)
-
+            if(SAFE_BLOCk==True and action_space== 4 ):
+                action,phase_time=safe_judge(action,obs,phase_time,phase_list)
             # action = np.array([0]) # 对于 discrete 此时绿灯时间就是 5
-            obs, reward, done, info = eval_env.step(action) # 随机选择一个动作, 从 phase 中选择一个 # 干什么用
+            obs, reward, done, info= eval_env.step(action) # 随机选择一个动作, 从 phase 中选择一个 # 干什么用
             
         eval_env.close()
 
@@ -82,45 +84,62 @@ def test_model(
             ignore=shutil.ignore_patterns('*.add.xml'),
             dirs_exist_ok=True,
         )
-def safe_judge(action,obs,phase_time):
+def get_phase(action_space):
+    phases_6=[[1, 1, 0, 0, 0, 0, 0, 0],
+       [0, 1, 0, 0, 0, 0, 0, 1],
+       [0, 0, 0, 0, 0, 0, 1, 1],
+       [0, 0, 0, 0, 1, 1, 0, 0],
+       [0, 0, 0, 1, 0, 1, 0, 0],
+       [0, 0, 1, 1, 0, 0, 0, 0]]
+    phases_4=[[0, 1, 0, 0, 0, 0, 0, 1],
+       [1, 0, 0, 0, 0, 0, 1, 0],
+       [0, 0, 0, 1, 0, 1, 0, 0],
+       [0, 0, 1, 0, 1, 0, 0, 0]]
+    phases_3=[[0, 1, 0, 1],
+       [1, 0, 0, 0],
+       [0, 0, 1, 0]]
+    if(action_space==6):
+        phase_list=phases_6
+    if(action_space==4):
+        phase_list=phases_4
+    if(action_space==3):
+        phase_list=phases_3
+    phase_list=np.array(phase_list,float)
+    return phase_list
+def safe_judge(action,obs,phase_time,phase_list):
     #print('obs',obs)
     act=action[0]
-    occupancy=obs[:,:,:,1]
-    now_pahse=obs[:,:,:,6]
+    obs=obs[:,-1,:,:]
+    occupancy=obs[:,:,1]
+    now_pahse=obs[:,:,6]
+    #print('occupancy',occupancy.shape)
     occupancy=occupancy.reshape(-1)
     #print('now_action',action)
-    phase_0=occupancy[1]+occupancy[7]
-    phase_1=occupancy[0]+occupancy[6]
-    phase_2=occupancy[3]+occupancy[5]
-    phase_3=occupancy[2]+occupancy[4]
-    occupancy_list=[phase_0,phase_1,phase_2,phase_3]
-    occupancy_list=np.array(occupancy_list)
-    if(occupancy_list[act]>0.3):
-        action[0]=act
-    else:
-        #选取的action的平均占有率不能过低
-        max=occupancy_list.max()
-        for item in range(0,4):
-            if occupancy_list[item]==max:
-                action[0]=item
-    #加入时间长度控制，一个相位不能太久没被随机到
-    phase_time=np.array(phase_time)
+    #print('occupancy',occupancy.shape)
+    occupancy_list=np.ones(phase_list.shape[0])
+    for i in range(0,phase_list.shape[0]):
+        occupancy_list[i]=(occupancy*phase_list[i]).sum()
+        phase_time=np.array(phase_time)
     max=phase_time.max()
-    if(max==23):
-        for item in range(0,4):
+    #加入时间长度控制，一个相位不能太久没被随机到
+    if(max>=23):
+        for item in range(0,phase_list.shape[0]):
             if phase_time[item]>=23:
                 action[0]=item
-                phase_time[item]=0
-                phase_time=phase_time+np.ones(4)
     else:
-         phase_time[action[0]]=0
-         phase_time=phase_time+np.ones(4)
-    #print('phase_time',phase_time)
-    #print('occupancy',occupancy_list)
-    #print('action',action)
+        #选取的action的平均占有率不能过低
+        if(occupancy_list[act]>0.3):
+            action[0]=act
+        else:
+             action[0]=occupancy_list.argmax()
+        #选取的相位不能持续过久时间 如果持续太久时间 则选取占有率第二位的
+        if phase_time[action[0]]>=8:
+            occupancy_list[action[0]]=0
+            action[0]=occupancy_list.argmax()
+    #参数更新
+    phase_time[action[0]]=0
+    phase_time=phase_time+np.ones(phase_list.shape[0])
     return action,phase_time
-
-        
 
 if __name__ == '__main__':
     init_logging(log_path=pathConvert('./test_log/'), log_level=0)

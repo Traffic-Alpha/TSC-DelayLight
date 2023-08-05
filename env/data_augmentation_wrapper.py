@@ -145,6 +145,7 @@ class data_augmentation_wrapper(gym.ObservationWrapper):
         return obs_wrapper
 
 
+
     def step(self, action):
         """Steps through the environment, appending the observation to the frame buffer.
 
@@ -154,7 +155,7 @@ class data_augmentation_wrapper(gym.ObservationWrapper):
         Returns:
             Stacked observations, reward, done, and information from the environment
         """
-        observation, reward, done, info = self.env.step(action)
+        observation, reward, done, info= self.env.step(action)
         return self.observation(observation), reward, done, info
 
 
