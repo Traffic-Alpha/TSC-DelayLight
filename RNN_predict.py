@@ -96,8 +96,6 @@ def predict_model(
 
         
         for batch, x in enumerate(train_loader):
-        
-
             var_x = Variable(x[:,:,0:N_STACK]) #转为Variable（变量）
             var_y = Variable(x[:,:,-1])
             var_y=np.expand_dims(var_y, axis=2)

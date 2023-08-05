@@ -3,17 +3,17 @@
  # @Author: Pang Aoyu
  # @Date: 2023-04-05 15:30:18
  # @Description: 测试 scnn esnn ernn eattention  infrence 在不同时延情况下的效果
- # @Command: nohup bash scripts/test_X.sh >  test_eattention.log &
+ # @Command: nohup bash scripts/test_X.sh >  test_inference_eattention.log &
  # @LastEditTime: 2023-03-05 15:32:02
 ###
 
-FOLDER="/home/aoyu/TSC-DelayLight" 
-STACK=16
+FOLDER="/home/aoyu/TSC-DelayLight/" 
+STACK=8
 for i in 0 1 2 3 4 6 7 8 9 10 11 12 13 14
 do
-    for delay_time in 0 1 2 3 4  8  12  16  20  24
+    for delay_time in 0 1 2 3 4  8  12  16  20 24
     do
-    for model_name in eattention 
+    for model_name in inference_eattention
     do    
         python ${FOLDER}/test.py --stack=$STACK --delay=$delay_time --model_name=$model_name --net_env=train_three_3  --net_name=3phases.net.xml &
     

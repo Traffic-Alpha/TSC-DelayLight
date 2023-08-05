@@ -1,7 +1,7 @@
 '''
 @Author: PANG Aoyu
 @Date: 2023-03-31 
-@Description: SCNN, use multi-channels to extract infos
+@Description: flowdata create 把预测模型所需要的训练数据进行输出。
 @LastEditTime: 2023-03-31
 '''
 import gym

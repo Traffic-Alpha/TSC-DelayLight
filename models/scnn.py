@@ -39,6 +39,19 @@ class SCNN(BaseFeaturesExtractor):
         o = self.view_conv(torch.zeros(1, *shape))
         return int(np.prod(o.size()))
 
+    def data_out(self,observaions):
+
+        writer = csv.writer(self.f)
+
+        net_shape = observaions.shape
+        #obs_out=observaions[-1,-1,:,0:3].clone()   #不错这么多改变 直接输出全部
+        temp=observaions.cpu().clone()
+        obs_out=temp[-1,-1,:,:].clone() #输出最后一片
+        #obs_out[:,-1]=observaions[-1,-1,:,6].clone()
+        obs_out=obs_out.reshape(-1)
+        obs_out=np.array(obs_out)
+        writer.writerow(obs_out)
+        
 
     def forward(self, observations):
         batch_size = observations.size()[0] # (BatchSize, N, 8, K)

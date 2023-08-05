@@ -24,7 +24,7 @@ def test_model(
     ):
     if model_name == 'None':
         model_name = ''
-    assert model_name in ['scnn', 'ernn', 'eattention', 'ecnn', 'inference', 'predict', 'ernn_P', 'ernn_C','inference_scnn'], f'Model name error, {model_name}'
+    assert model_name in ['scnn', 'ernn', 'eattention', 'ecnn', 'inference', 'predict', 'ernn_P', 'ernn_C','inference_scnn','inference_eattention'], f'Model name error, {model_name}'
     # args, 这里为了组合成模型的名字
     N_STACK = n_stack # 堆叠
     N_DELAY = n_delay # 时延
@@ -76,7 +76,6 @@ def test_model(
             ignore=shutil.ignore_patterns('*.add.xml'),
             dirs_exist_ok=True,
         )
-        
 
 
 if __name__ == '__main__':
