@@ -68,8 +68,7 @@ def test_model(
         while not done:
             action, _state = model.predict(obs, deterministic=True)
             #print('action_test',action, obs)
-            if(SAFE_BLOCk==True and action_space== 4 ):
-                action,phase_time=safe_judge(action,obs,phase_time,phase_list)
+            action,phase_time=safe_judge(action,obs,phase_time,phase_list)
             # action = np.array([0]) # 对于 discrete 此时绿灯时间就是 5
             obs, reward, done, info= eval_env.step(action) # 随机选择一个动作, 从 phase 中选择一个 # 干什么用
             
