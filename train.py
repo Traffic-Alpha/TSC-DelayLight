@@ -16,7 +16,7 @@ from aiolos.trafficLog.initLog import init_logging
 pathConvert = getAbsPath(__file__)
 
 from env import makeENV
-from models import scnn, ernn, eattention, ecnn, inference, ernn_P, ernn_C, inference_scnn, cnn_Pro
+from models import scnn, ernn, eattention, ecnn, inference, inference_scnn, inference_eattention, inference_ecnn
 from create_params import create_params
 from utils.lr_schedule import linear_schedule
 from utils.env_normalize import VecNormalizeCallback, VecBestNormalizeCallback
@@ -24,7 +24,7 @@ from utils.env_normalize import VecNormalizeCallback, VecBestNormalizeCallback
 def experiment(
         net_name,net_env,n_stack, n_delay, model_name, num_cpus
     ):
-    assert model_name in ['scnn', 'ernn','eattention','ecnn','inference', 'ernn_P', 'ernn_C','inference_scnn','cnn_Pro'], f'Model name error, {model_name}'   #增加模型
+    assert model_name in ['scnn', 'ernn','eattention','ecnn','inference','inference_scnn','inference_eattention','inference_ecnn'], f'Model name error, {model_name}'   #增加模型
     # args
     N_STACK = n_stack # 堆叠
     N_DELAY = n_delay # 时延
@@ -57,6 +57,7 @@ def experiment(
     eval_env = VecNormalize(eval_env, norm_obs=False, norm_reward=True) # 进行标准化 #先不做标准化测试一下
     eval_env.training = False # 测试的时候不要更新
     eval_env.norm_reward = False
+    action_space=eval_env.action_space.n 
 
     # ########
     # callback
@@ -89,24 +90,24 @@ def experiment(
         'eattention': eattention.EAttention,
         'ecnn':ecnn.ECNN,
         'inference':inference.Inference,
-        'ernn_P':ernn_P.ERNN_P,
-        'ernn_C':ernn_C.ERNN_C,
+        #'ernn_P':ernn_P.ERNN_P,
+        #'ernn_C':ernn_C.ERNN_C,
         'inference_scnn':inference_scnn.Inference_SCNN,
-        'cnn_Pro':cnn_Pro.CNN_Pro,
+        'inference_eattention':inference_eattention.Infer_EAttention,
+        'inference_ecnn':inference_ecnn.Infer_ECNN,
     }
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print("device",device)
     policy_kwargs = dict(
         features_extractor_class=feature_extract[model_name],
-        features_extractor_kwargs=dict(features_dim=32), # features_dim 提取的特征维数
+        features_extractor_kwargs=dict(features_dim=32,action_space=action_space), # features_dim 提取的特征维数
     )
     model = PPO(
                 "MlpPolicy", env, verbose=True, 
                 policy_kwargs=policy_kwargs, learning_rate=linear_schedule(3e-4), 
                 tensorboard_log=TENSORBOARD_LOG_DIR, device=device
             )
-    model.learn(total_timesteps=10e6, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
-    model.learn(total_timesteps=3e7, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
+    model.learn(total_timesteps=1e6, tb_log_name=f'{N_STACK}_{N_DELAY}', callback=callback_list) # log 的名称
 
     # #########
     # save env
@@ -117,13 +118,12 @@ def experiment(
 if __name__ == '__main__':
     init_logging(log_path=pathConvert('./log'), log_level=0)
     parser = argparse.ArgumentParser()
-    parser.add_argument('--stack', type=int, default=1)
     parser.add_argument('--stack', type=int, default=6)
     parser.add_argument('--delay', type=int, default=0)
-    parser.add_argument('--cpus', type=int, default=10) # 同时开启的仿真数量
+    parser.add_argument('--cpus', type=int, default=3) # 同时开启的仿真数量
     parser.add_argument('--net_env', type=str, default='train_four_345')
-    parser.add_argument('--net_name', type=str, default='4phases.net.xml')
-    parser.add_argument('--model_name', type=str, default='ernn_C')
+    parser.add_argument('--net_name', type=str, default='6phases.net.xml')
+    parser.add_argument('--model_name', type=str, default='inference_scnn')
     args = parser.parse_args()
 
     experiment(
