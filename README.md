@@ -1,4 +1,4 @@
-# TSC-DelayLight
+# A Two Stages RL-based TSC System under Delayed Observation for V2X
 ## Getting Start
 
 ### model free
@@ -19,21 +19,15 @@
 
 - `FlowData_create.py`,车流数据生成，用于预测模型的训练
 - `RNN_predict.py`, 用于预测模型的训练，此处使用是LSTM
-- `train_predict.py`, 用于基于预测的RL模型训练，此处和model free相比，多传入一个预测模型权重参数
+- `train_predict.py`, 用于基于RNN预测的RL模型训练，此处和model free相比，多传入一个预测模型权重参数。 
+
+### 模型融合
+- - 在模型库中，新增加Scene Future Prediction 和 Scene Context Encoder 组合模型。 有两种预测模型和四种Encoder模型，共八种组合，都以实现，放入 models 中。
 
 ## Scripts
 
-训练使用的脚本文件，可以在scripts中找到
+训练使用的脚本文件，可以在scripts中找到。 
 
 ## 使用问题
 
 使用中可能会出现问题，欢迎留言，逐步完善。
-
-
-## 实验记录
-
-renn_C  infrence_scnn 还没测试
-
-训练 8片 明天测试
-
-predict 升级 根据延迟进行预测 或直接向后预测四片，进行训练。
