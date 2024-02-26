@@ -1,33 +1,50 @@
-# A Two Stages RL-based TSC System under Delayed Observation for V2X
+# Scalable Reinforcement Learning Framework for Traffic Signal Control under Communication Delays
+
+## Info
+This study proposes a two-stage framework to address observation delay in TSC.  In the first stage, a scene prediction module and a scene context encoder are utilized to process historical and current traffic data to generate preliminary traffic signal actions. In the second stage, an action refinement module, informed by human-defined traffic rules and real-time traffic metrics, adjusts the preliminary actions to account for the latency in observations. This modular design allows device deployment with varying computational resources while facilitating system customization, ensuring both adaptability and scalability, particularly in edge-computing environments. 
+
+<div align=center>
+<img width="90%" src="./assets/model_structure.png" />
+
+Schematic of the two-stage RL-based TSC framework with delay mitigation.
+</div>
+
+<div align=center>
+<img width="90%" src="./assets/stage_1_structure.png" />
+
+Illustration of the RL training process within the action generation stage (Stage 1). 
+</div>
+<div align=center>
+<img width="60%" src="./assets/predict_model.png" />
+
+The Predict-LSTM training process within the RL framework.
+</div>
+
 ## Getting Start
+### Run model locally
 
-### model free
-
-- `train.py`，可从模型库指定模型训练；
-- - **Example**：python train.py --stack=6 --delay=0 --model_name=scnn --net_env=train_four_345 --net_name=4phases.net.xml
+- `train.py`，train model；
+- - **Example**：
+```bash
+python train.py --stack=6 --delay=0 --model_name=scnn --net_env=train_four_345 --net_name=4phases.net.xml
+```
 
 - - **model zoo**： scnn ernn eattention ecnn inference predict 
 
-- - **env**：‘train_four_3  3phases.net.xml‘  ’train_four_345 4phases.net.xml‘ ’train_four_345 6phases.net.xml‘
+- - **env**：‘train_four_3  3phases.net.xml‘  ’train_four_345 4phases.net.xml‘ ’train_four_345 6phases.
 
+- `test.py`, Test the trained model, specify the type of model, and the name of the environment to be tested, the test environment needs to have junction type and phase selection The model reads the model trained at delay=0 by default when reading, you can change it by yourself.
 
-- `test.py`，对训练好的模型进行测试，指定模型的类型，和需要测试的环境名称，测试环境需要有路口类型和相位选择 模型在读取时默认读取delay=0时训练的模型，可自行更改。
-
-- - **Example**：python test.py --stack=6 --delay=0 --model_name=ernn --net_name=train_four_3 
-
+- - **Example**：
+```bash
+python test.py --stack=6 --delay=0 --model_name=ernn --net_name=train_four_3 
+```
 ### predict model
 
-- `FlowData_create.py`,车流数据生成，用于预测模型的训练
-- `RNN_predict.py`, 用于预测模型的训练，此处使用是LSTM
-- `train_predict.py`, 用于基于RNN预测的RL模型训练，此处和model free相比，多传入一个预测模型权重参数。 
-
-### 模型融合
-- - 在模型库中，新增加Scene Future Prediction 和 Scene Context Encoder 组合模型。 有两种预测模型和四种Encoder模型，共八种组合，都以实现，放入 models 中。
+- `FlowData_create.py`,Traffic flow data generation for predictive model training.
+- `RNN_predict.py`, Used to train the traffic prediction model, here used is LSTM.
+- `train_predict.py`, For LSTM-based prediction and RL model training.
 
 ## Scripts
 
-训练使用的脚本文件，可以在scripts中找到。 
-
-## 使用问题
-
-使用中可能会出现问题，欢迎留言，逐步完善。
+The script files used for training can be found in scripts. 
