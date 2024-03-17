@@ -1,3 +1,11 @@
+<!--
+ * @Author: pangay 1623253042@qq.com
+ * @Date: 2024-03-17 19:57:27
+ * @LastEditors: pangay 1623253042@qq.com
+ * @LastEditTime: 2024-03-17 20:04:01
+ * @FilePath: /TSC-DelayLight/README.md
+ * @Description: 这是默认设置,请设置`customMade`, 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+-->
 # Scalable Reinforcement Learning Framework for Traffic Signal Control under Communication Delays
 
 ## Info
@@ -45,6 +53,22 @@ python test.py --stack=6 --delay=0 --model_name=ernn --net_name=train_four_3
 - `RNN_predict.py`, Used to train the traffic prediction model, here used is LSTM.
 - `train_predict.py`, For LSTM-based prediction and RL model training.
 
+## License and Citation <a name="licenseandcitation"></a>
+All assets and code in this repository are under the [Apache 2.0 license](./LICENSE) unless specified otherwise. The language data is under [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/). Other datasets (including nuScenes) inherit their own distribution licenses. Please consider citing our paper and project if they help your research.
+
+```BibTeX
+@article{pang2024scalable,
+  title={Scalable Reinforcement Learning Framework for Traffic Signal Control under Communication Delays},
+  author={Pang, Aoyu and Wang, Maonan and Chen, Yirong and Pun, Man-On and Lepech, Michael},
+  journal={IEEE Open Journal of Vehicular Technology},
+  year={2024},
+  publisher={IEEE}
+}
+```
 ## Scripts
 
 The script files used for training can be found in scripts. 
+
+## Acknowledgment
+
+感谢滕羽菲对画图工作进行的帮助，她非常善良可爱，乐于助人 
