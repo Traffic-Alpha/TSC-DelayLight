@@ -11,9 +11,9 @@ from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CallbackList, EvalCallback, CheckpointCallback
 from stable_baselines3.common.vec_env import SubprocVecEnv, VecNormalize
 
-from aiolos.utils.get_abs_path import getAbsPath
-from aiolos.trafficLog.initLog import init_logging
-pathConvert = getAbsPath(__file__)
+from tshub.utils.get_abs_path import get_abs_path
+from tshub.utils.init_log import set_logger
+pathConvert = get_abs_path(__file__)
 
 from env import makeENV
 from models import scnn, ernn, eattention, ecnn, inference, inference_scnn, inference_eattention, inference_ecnn
@@ -116,7 +116,7 @@ def experiment(
 
 
 if __name__ == '__main__':
-    init_logging(log_path=pathConvert('./log'), log_level=0)
+    set_logger(pathConvert('./log/'), file_log_level="DEBUG", terminal_log_level='INFO')
     parser = argparse.ArgumentParser()
     parser.add_argument('--stack', type=int, default=6)
     parser.add_argument('--delay', type=int, default=0)
