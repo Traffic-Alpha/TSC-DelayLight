@@ -29,6 +29,23 @@ The Predict-LSTM training process within the RL framework.
 </div>
 
 ## Getting Start
+### Install [TransSimHub](https://github.com/Traffic-Alpha/TransSimHub)
+The simulation environment we used is TransSimHub, which is based on SUMO and can be used for TSC, V2X and UAM simulation. More information is available via [docs](https://transsimhub.readthedocs.io/en/latest/).
+
+You can install TransSimHub by cloning the GitHub repository. Follow these steps:
+```bash
+git clone https://github.com/Traffic-Alpha/TransSimHub.git
+cd TransSimHub
+pip install -e .
+```
+
+After the installation is complete, you can use the following Python command to check if TransSimHub is installed and view its version:
+
+```bash
+import tshub
+print(tshub.__version__)
+```
+
 ### Run model locally
 
 - `train.py`，train model；
@@ -65,6 +82,7 @@ All assets and code in this repository are under the [Apache 2.0 license](./LICE
   publisher={IEEE}
 }
 ```
+
 ## Scripts
 
 The script files used for training can be found in scripts. 
